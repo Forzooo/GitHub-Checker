@@ -1,4 +1,4 @@
-from system import formatLinktoAPI, addLink, createJSON, removeRepository
+from system import formatLinktoAPI, addLink, createJSON, removeRepository, viewRepository
 from versionManager import checkNewVersions, changeVersion
 
 createJSON()
@@ -12,31 +12,35 @@ f"""
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
   ***  Made by: Forzo  ***
-****************************
-"""
+****************************"""
 )
 
-option = input("Functions available: \n(1) Add link \n(2) Verify new releases \n(3) Remove a repository \n(4) Change the version you are using of a repository\n\nOption: ")
+while True:
+    option = input("\nFunctions available: \n(0) Exit from the tool \n(1) Add a repository \n(2) Verify new releases \n(3) Remove a repository \n(4) Change the version you are using of a repository \n(5) View all the repository\n\nOption: ")
 
-if option == "1":
-    url = input("Insert a GitHub repository link: ")
+    if option == "0":
+        break
 
-    url_formatted = formatLinktoAPI(url=url)
+    elif option == "1":
+        url = input("Insert a GitHub repository link: ")
 
-    addLink(url_formatted)
+        url_formatted = formatLinktoAPI(url=url)
 
-elif option == "2":
-    checkNewVersions()
+        addLink(url_formatted)
 
-elif option == "3":
+    elif option == "2":
+        checkNewVersions()
 
-    url = input("Url of the repository: ")
-    removeRepository(url=url)
+    elif option == "3":
 
-elif option=="4":
-    url = input("Url of the repository: ")
-    version = input("Version you are using: ")
+        url = input("Url of the repository: ")
+        removeRepository(url=url)
 
-    changeVersion(url=url, version=version)
+    elif option== "4":
+        url = input("Url of the repository: ")
+        version = input("Version you are using: ")
 
-input("Press enter to exit from the tool...")
+        changeVersion(url=url, version=version)
+
+    elif option == "5":
+        viewRepository()

@@ -125,4 +125,20 @@ def updateJSON(data):
     with open("sites.json", "w") as file: 
         json.dump(data, file) # Write the new data of the file
 
+    return
 
+def viewRepository():
+
+    import time # Import the time library to allow the user to see the repository before the loop starts again asking for another option
+
+    data = readData() # Obtain the data of the JSON file
+
+    print("The repository you have saved are: \n")
+
+    # Write all the repositories saved
+    for repository in data["repositories"]:
+        print(f"* {formatLinkFromAPI(repository)} \n")
+
+    time.sleep(5) # Wait 5 seconds before the loop starts again
+
+    return

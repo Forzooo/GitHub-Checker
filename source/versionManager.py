@@ -21,6 +21,8 @@ def getLatestVersion(url: str) -> str:
 
 def checkNewVersions():
 
+    import time # Import the time library to allow the user to see the repositories before the loop starts again asking for another option
+
     data = readData() # Read the data from "sites.json"
     repositories = data["repositories"] # Obtain the data of the repositories
 
@@ -34,11 +36,13 @@ def checkNewVersions():
 
         # Verify if the local version of the user is the latest one available
         if localVersion == onlineVersion:
-            print(f"You have already the latest version: {localVersion} of {userFriendlyUrl}")
+            print(f"* You have already the latest version: {localVersion} of {userFriendlyUrl}")
 
         else:
-            print(f"A new release, version: {onlineVersion} for {userFriendlyUrl} is now available. Your are using version: {localVersion}")
+            print(f"* A new release, version: {onlineVersion} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
 
+    time.sleep(5)
+    return
 
 def changeVersion(url: str, version: str):
 
