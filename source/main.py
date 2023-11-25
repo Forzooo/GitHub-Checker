@@ -7,7 +7,7 @@ print(
 f"""
 ****** GitHub Checker ******
 
-  ***  Version: 1.0.0  ***
+  ***  Version: 1.0.1  ***
 
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
