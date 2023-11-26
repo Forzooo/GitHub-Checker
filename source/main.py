@@ -7,7 +7,7 @@ print(
 f"""
 ****** GitHub Checker ******
 
-  ***  Version: 1.0.2  ***
+  ***  Version: 1.0.3  ***
 
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
@@ -22,7 +22,7 @@ while True:
         break
 
     elif option == "1":
-        url = input("Insert a GitHub repository link: ")
+        url = input("Enter a GitHub repository link: ")
 
         url_formatted = formatLinktoAPI(url=url)
 

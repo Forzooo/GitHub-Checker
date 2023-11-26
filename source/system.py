@@ -1,5 +1,3 @@
-
-
 def formatLinktoAPI(url: str) -> str|None:
     
     import requests # Import the library required to verify if the repository exist
@@ -63,6 +61,8 @@ def addLink(url: str) -> None:
     data["repositories"][url] = version # Add to the dictionary the url and the latest version of the repository 
 
     updateJSON(data=data) # Update the JSON file with the changes made
+
+    print(f"Added the repository: {url}")
 
     return
 
@@ -134,9 +134,9 @@ def viewRepository():
 
     print("The repository you have saved are: \n")
 
-    # Write all the repositories saved
+    # Write all the repositories saved with the version the user is using
     for repository in data["repositories"]:
-        print(f"* {formatLinkFromAPI(repository)} \n")
+        print(f"* {formatLinkFromAPI(repository)} - {data["repositories"][repository]}")
 
     time.sleep(5) # Wait 5 seconds before the loop starts again
 
