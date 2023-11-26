@@ -7,7 +7,7 @@ print(
 f"""
 ****** GitHub Checker ******
 
-  ***  Version: 1.0.3  ***
+  ***  Version: 1.0.4  ***
 
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
@@ -38,7 +38,7 @@ while True:
 
     elif option== "4":
         url = input("Url of the repository: ")
-        version = input("Version you are using: ")
+        version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
 
         changeVersion(url=url, version=version)
 

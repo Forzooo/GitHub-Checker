@@ -73,8 +73,12 @@ def changeVersion(url: str, version: str):
     except KeyError:
         return # The error is already written in the formatLinkToApi function
 
-    data["repositories"][url_formatted] = version # Change the version of the repository to the new one
+    # If the user is using the latest relase than update it to the last one available (This is used if the user has already updated with the new release, of a repository, 
+    # without using this tool)
+    if version.lower() == "latest":
+        version = getLatestVersion(url=url_formatted) # Get the latest version available on GitHub
 
+    data["repositories"][url_formatted] = version # Change the version of the repository to the new one
     updateJSON(data=data) # Update the JSON file with the changes made
 
     print(f"Changed the version of {url} from {old_version} to {version}")
