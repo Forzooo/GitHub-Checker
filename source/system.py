@@ -44,12 +44,11 @@ def formatLinkFromAPI(url: str) -> str:
     url_splitted = url.split("/")
 
 
-    # Strings used to modify the url given in input by the user
-    api = "https://github.com/"
-    releases = "/releases"
+    # String used to modify the url given in input by the user
+    github_link = "https://github.com/"
 
     # url_splitted[4] is the username of the repository owner, url_splitted[5] is the name of the repository
-    url_formatted = api + url_splitted[4] + "/" + url_splitted[5] + releases
+    url_formatted = github_link + url_splitted[4] + "/" + url_splitted[5]
 
     return url_formatted
 
