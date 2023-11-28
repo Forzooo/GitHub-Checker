@@ -1,4 +1,4 @@
-from system import formatLinktoAPI, addLink, createJSON, removeRepository, viewRepository
+from system import addLink, createJSON, removeRepository, viewRepository
 from versionManager import checkNewVersions, changeVersion
 
 createJSON()
@@ -7,7 +7,7 @@ print(
 f"""
 ****** GitHub Checker ******
 
-  ***  Version: 1.0.4  ***
+  ***  Version: 1.0.5  ***
 
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
@@ -23,10 +23,9 @@ while True:
 
     elif option == "1":
         url = input("Enter a GitHub repository link: ")
+        version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
 
-        url_formatted = formatLinktoAPI(url=url)
-
-        addLink(url_formatted)
+        addLink(url=url, version=version)
 
     elif option == "2":
         checkNewVersions()

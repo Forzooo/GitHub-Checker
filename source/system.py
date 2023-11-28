@@ -50,19 +50,23 @@ def formatLinkFromAPI(url: str) -> str:
 
     return url_formatted
 
-def addLink(url: str) -> None:
+def addLink(url: str, version: str) -> None:
 
     from versionManager import getLatestVersion
 
+    url_formatted = formatLinktoAPI(url=url) # Convert the url to the one used from the tool: "https://api.github.com. ..."
+
+    # Check if the user has written in the version input 'latest' to set the version of the repository to the last one available
+    if version.lower() == "latest":
+        version = getLatestVersion(url=url_formatted) # Get the latest version available on GitHub
+
     data = readData()
 
-    version = getLatestVersion(url=url) # Since it's a new url, the JSON needs to get the latest version of the repository
-
-    data["repositories"][url] = version # Add to the dictionary the url and the latest version of the repository 
+    data["repositories"][url_formatted] = version # Add to the dictionary the url and the version of the repository 
 
     updateJSON(data=data) # Update the JSON file with the changes made
 
-    print(f"Added the repository: {url}")
+    print(f"Added the repository: {url_formatted}")
 
     return
 
@@ -93,11 +97,6 @@ def readData():
         data = json.load(file) # Read the data of "sites.json"
 
     return data
-
-
-
-
-
 
 def removeRepository(url: str):
 
