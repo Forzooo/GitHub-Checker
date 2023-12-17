@@ -1,5 +1,4 @@
-def formatLinktoAPI(url: str) -> str|None:
-    
+def verifyRepositoryExist(url: str) -> bool:
     import requests # Import the library required to verify if the repository exist
 
     try:
@@ -8,12 +7,16 @@ def formatLinktoAPI(url: str) -> str|None:
 
     except requests.exceptions.MissingSchema:
         print(f"You have entered an invalid url: {url}")
-        return
+        return False
 
     if response.status_code != 200:
         print("The repository does not exist.")
-        return
+        return False
 
+    return True
+
+def formatLinktoAPI(url: str) -> str|None:
+    
     # Remove all the slash from the url
     url_splitted = url.split("/")
 
@@ -53,6 +56,9 @@ def formatLinkFromAPI(url: str) -> str:
 def addLink(url: str, version: str) -> None:
 
     from versionManager import getLatestVersion
+
+    if not verifyRepositoryExist(url):
+        return
 
     url_formatted = formatLinktoAPI(url=url) # Convert the url to the one used from the tool: "https://api.github.com. ..."
 

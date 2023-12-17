@@ -6,10 +6,26 @@ def obtainVersions(url: str) -> tuple:
     
     repository_data = (requests.get(url)).json() # Obtain the data from the api of the repository given in input
 
-    tag_names = [release["tag_name"] for release in repository_data] # Obtain all the tag names of the releases
+    try:
+        tag_names = [release["tag_name"] for release in repository_data] # Obtain all the tag names of the releases
+    
+    except TypeError as e:
+        try:
+            print(f"- Error: {repository_data['message']}")
+    
+        except KeyError:
+            print(f"- Error: {e} occured. Write an issue on GitHub to have it solved.")
+            
+        input("\nPress enter to exit...")
+        quit()
+    
+
     pre_release = [release["prerelease"] for release in repository_data] # Obtain all the boolean of the prereleases
 
-    return (tag_names, pre_release) # Return every release and if it's a prerelease
+    description = [release["body"] for release in repository_data] # Retrive all the "body" tags from all the releases in the json. Where "body" is the description of the release
+
+
+    return (tag_names, pre_release, description) # Return every release, if it's a prerelease and his description
 
 def getLatestVersion(url: str) -> tuple:
 
@@ -17,9 +33,9 @@ def getLatestVersion(url: str) -> tuple:
 
     version = tagVersions[0][0] # Obtain the latest release of the repository
     prelease = tagVersions[1][0] # Obtain the flag whether the latest release of the repository is a prerelease
+    description = description[2][0] # Obtain the description of the latest release of the repository
 
-
-    return (version, prelease)
+    return (version, prelease, description)
 
 
 def checkNewVersions():
@@ -53,7 +69,7 @@ def checkNewVersions():
 
             if option.lower() == "y":
 
-                description = getDescriptionRelease(url=url)[0] # Call the get description release function to get the description of the latest release of a repository (index 0)
+                description = onlineVersion[2] # Obtain the description of the latest release of a repository (index 2 of getLatestVersion function)
 
                 print(f"Description of the release: \n{description}")
 
@@ -91,13 +107,13 @@ def changeVersion(url: str, version: str):
 
     # If the user is using the latest relase than update it to the last one available (This is used if the user has already updated with the new release, of a repository, 
     # without using this tool)
-    if version.lower() == "latest":
+    if version[0].lower() == "latest":
         version = getLatestVersion(url=url_formatted)[0] # Get the latest version available on GitHub
 
     data["repositories"][url_formatted] = version # Change the version of the repository to the new one
     updateJSON(data=data) # Update the JSON file with the changes made
 
-    print(f"Changed the version of {url} from {old_version} to {version}")
+    print(f"Changed the version of {url} from {old_version} to {version[0]}")
 
 def downloadRelease(url: str):
 
@@ -141,14 +157,3 @@ def downloadRelease(url: str):
 
     return
 
-
-def getDescriptionRelease(url: str):
-
-
-    import requests # Import the library required to get data from webpages
-    
-    repository_data = (requests.get(url)).json() # Obtain the data from the api of the repository given in input
-
-    description = [release["body"] for release in repository_data] # Retrive all the "body" tags from all the releases in the json. Where "body" is the description of the release
-
-    return description
