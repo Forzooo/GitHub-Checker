@@ -58,7 +58,7 @@ def addLink(url: str, version: str) -> None:
 
     # Check if the user has written in the version input 'latest' to set the version of the repository to the last one available
     if version.lower() == "latest":
-        version = getLatestVersion(url=url_formatted) # Get the latest version available on GitHub
+        version = getLatestVersion(url=url_formatted)[0] # Get the latest version available on GitHub
 
     data = readData()
 
@@ -138,5 +138,23 @@ def viewRepository():
         print(f"* {formatLinkFromAPI(repository)} - {data["repositories"][repository]}")
 
     time.sleep(5) # Wait 5 seconds before the loop starts again
+
+    return
+
+
+def openDownloadFolder():
+
+    import os, sys # Import the libraries 'os', 'sys'
+
+    operatingSystem = sys.platform # Get the current Operating System, required to choose which command is required to open the download folder
+
+    current_directory = os.getcwd() # Get the directory where is executed the tool, since the repositories are downloaded in the same folder
+
+    # Check which Operating system is being used
+    if operatingSystem == 'win32':
+        os.system(f'explorer "{current_directory}"') # Execute the command to open the folder
+
+    else:
+        os.system(f'open "{current_directory}"') # Execute the command to open the folder
 
     return

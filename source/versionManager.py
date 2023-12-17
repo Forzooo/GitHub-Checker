@@ -1,22 +1,25 @@
 from system import readData, updateJSON, formatLinkFromAPI, formatLinktoAPI
 
-def obtainTagNames(url: str) -> list:
+def obtainVersions(url: str) -> tuple:
 
     import requests # Import the library required to get data from webpages
     
     repository_data = (requests.get(url)).json() # Obtain the data from the api of the repository given in input
 
     tag_names = [release["tag_name"] for release in repository_data] # Obtain all the tag names of the releases
+    pre_release = [release["prerelease"] for release in repository_data] # Obtain all the boolean of the prereleases
 
-    return tag_names
+    return (tag_names, pre_release) # Return every release and if it's a prerelease
 
-def getLatestVersion(url: str) -> str:
+def getLatestVersion(url: str) -> tuple:
 
-    tagVersions = obtainTagNames(url=url) # Obtain all the tag versions of the releases of the repository
+    tagVersions = obtainVersions(url=url) # Obtain all the tag versions of the releases of the repository
 
-    version = tagVersions[0] # Obtain the latest release of the repository
+    version = tagVersions[0][0] # Obtain the latest release of the repository
+    prelease = tagVersions[1][0] # Obtain the flag whether the latest release of the repository is a prerelease
 
-    return version
+
+    return (version, prelease)
 
 
 def checkNewVersions():
@@ -32,16 +35,29 @@ def checkNewVersions():
     for url in repositories:
 
         localVersion = repositories[url] # Obtain the local version (the one used by the user) of the repository
-        onlineVersion = getLatestVersion(url=url) # Obtain the latest version of the repository
+        onlineVersion = getLatestVersion(url=url) # Obtain the latest version and the flag whether it's a prelease, of the repository
 
         userFriendlyUrl = formatLinkFromAPI(url) # Convert the API link to the normal GitHub link
 
-        # Verify if the local version of the user is not the latest one available
-        if localVersion != onlineVersion:
-            print(f"* A new release, version: {onlineVersion} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+        # Verify if the local version of the user is not the latest one available (index 0 of onlineVerision)
+        if localVersion != onlineVersion[0]:
+            
+            if (onlineVersion[1]):
+                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+
+            else:
+                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
 
 
-            option = input("Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
+            option = input("- Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
+
+            if option.lower() == "y":
+
+                description = getDescriptionRelease(url=url)[0] # Call the get description release function to get the description of the latest release of a repository (index 0)
+
+                print(f"Description of the release: \n{description}")
+
+            option = input("- Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
 
             if option.lower() == "y":
                 downloadRelease(url=url) # Call the download release function with the url of the repository
@@ -55,7 +71,7 @@ def checkNewVersions():
             releasesUpToDate += 1 # Update the counter of the latest relases the user already has by 1
 
     if releasesUpToDate == len(repositories): # If the user has all the latest releases, then write out the following output
-        print("You have the latest release of all the repositories.")
+        print("- You have the latest release of all the repositories.")
 
     time.sleep(2)
     return
@@ -76,7 +92,7 @@ def changeVersion(url: str, version: str):
     # If the user is using the latest relase than update it to the last one available (This is used if the user has already updated with the new release, of a repository, 
     # without using this tool)
     if version.lower() == "latest":
-        version = getLatestVersion(url=url_formatted) # Get the latest version available on GitHub
+        version = getLatestVersion(url=url_formatted)[0] # Get the latest version available on GitHub
 
     data["repositories"][url_formatted] = version # Change the version of the repository to the new one
     updateJSON(data=data) # Update the JSON file with the changes made
@@ -126,3 +142,13 @@ def downloadRelease(url: str):
     return
 
 
+def getDescriptionRelease(url: str):
+
+
+    import requests # Import the library required to get data from webpages
+    
+    repository_data = (requests.get(url)).json() # Obtain the data from the api of the repository given in input
+
+    description = [release["body"] for release in repository_data] # Retrive all the "body" tags from all the releases in the json. Where "body" is the description of the release
+
+    return description

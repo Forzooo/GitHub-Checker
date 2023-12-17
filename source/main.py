@@ -1,4 +1,4 @@
-from system import addLink, createJSON, removeRepository, viewRepository
+from system import addLink, createJSON, removeRepository, viewRepository, openDownloadFolder
 from versionManager import checkNewVersions, changeVersion
 
 createJSON()
@@ -7,7 +7,7 @@ print(
 f"""
 ****** GitHub Checker ******
 
-  ***  Version: 1.0.5  ***
+  ***  Version: 1.0.6  ***
 
   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
 
@@ -15,8 +15,24 @@ f"""
 ****************************"""
 )
 
+options = [
+    "Exit from the tool",
+    "Add a repository",
+    "Remove a repository",
+    "View all the repositories",
+    "Verify new releases",
+    "Change the version you are using of a repository",
+    "Open the download folder",
+]
 while True:
-    option = input("\nFunctions available: \n(0) Exit from the tool \n(1) Add a repository \n(2) Verify new releases \n(3) Remove a repository \n(4) Change the version you are using of a repository \n(5) View all the repository\n\nOption: ")
+
+    print("\nFunctions available: ")
+
+    for i in range(len(options)):
+        print(f"({i}) {options[i]}")
+
+    option = input("\n\nOption: ")
+
 
     if option == "0":
         break
@@ -28,18 +44,22 @@ while True:
         addLink(url=url, version=version)
 
     elif option == "2":
-        checkNewVersions()
-
-    elif option == "3":
 
         url = input("Url of the repository: ")
         removeRepository(url=url)
 
-    elif option== "4":
+    elif option == "3":
+        viewRepository()
+
+    elif option == "4":
+        checkNewVersions()
+
+    elif option == "5":
         url = input("Url of the repository: ")
         version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
 
         changeVersion(url=url, version=version)
 
-    elif option == "5":
-        viewRepository()
+    elif option == "6":
+        openDownloadFolder()
+
