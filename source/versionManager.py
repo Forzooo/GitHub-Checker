@@ -33,7 +33,7 @@ def getLatestVersion(url: str) -> tuple:
 
     version = tagVersions[0][0] # Obtain the latest release of the repository
     prelease = tagVersions[1][0] # Obtain the flag whether the latest release of the repository is a prerelease
-    description = description[2][0] # Obtain the description of the latest release of the repository
+    description = tagVersions[2][0] # Obtain the description of the latest release of the repository
 
     return (version, prelease, description)
 
@@ -59,10 +59,10 @@ def checkNewVersions():
         if localVersion != onlineVersion[0]:
             
             if (onlineVersion[1]):
-                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion[0]}")
 
             else:
-                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion[0]}")
 
 
             option = input("- Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
