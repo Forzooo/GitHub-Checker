@@ -93,8 +93,20 @@ def readData():
 
     import json # Import the JSON library used to read the data of "sites.json"
 
-    with open("sites.json", "r") as file:
-        data = json.load(file) # Read the data of "sites.json"
+
+    try:
+        with open("sites.json", "r") as file:
+            data = json.load(file) # Read the data of "sites.json"
+
+    except FileNotFoundError: # Check if the file exists, if not return an error to the user and close the tool:
+                              # In this case is required since readData() returns a value required by other functions and it would generate other errors
+
+        print("- Error: The file 'sites.json' is required to use this tool but it hasn't been found in the same directory where is the tool.")
+        print("- The tool will now create a new one.")
+        createJSON() # Regenerate the json file
+        input("- Press enter to exit from the tool...")
+        quit() # Close the tool
+
 
     return data
 
@@ -120,8 +132,15 @@ def updateJSON(data):
     import json # Import the JSON library to write the new data of the file
 
     # Open the JSON file and update it
-    with open("sites.json", "w") as file: 
-        json.dump(data, file) # Write the new data of the file
+    try:
+        with open("sites.json", "w") as file: 
+            json.dump(data, file) # Write the new data of the file
+
+
+    except FileNotFoundError: # Check if the file exists, if not return an error to the user
+        print("- Error: The file 'sites.json' is required to use this tool but it hasn't been found in the same directory where is the tool.")
+        print("- The tool will now create a new one.")
+        createJSON()
 
     return
 

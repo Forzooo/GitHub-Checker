@@ -4,15 +4,16 @@ from versionManager import checkNewVersions, changeVersion
 createJSON()
 
 print(
-f"""
-****** GitHub Checker ******
-
-  ***  Version: 1.0.6  ***
-
-  *** Source Code: https://github.com/Forzooo/GitHub-Checker ***
-
-  ***  Made by: Forzo  ***
-****************************"""
+"""
+╭──────────────────────────── GitHub Checker ────────────────────────────╮
+│                                                                        │
+│   ***  Version: 1.0.7  ***                                             │
+│                                                                        │
+│   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***       │
+│                                                                        │
+│   ***  Made by: Forzo  ***                                             │
+╰────────────────────────────────────────────────────────────────────────╯
+"""
 )
 
 options = [
