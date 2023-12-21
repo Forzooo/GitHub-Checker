@@ -107,13 +107,13 @@ def changeVersion(url: str, version: str):
 
     # If the user is using the latest relase than update it to the last one available (This is used if the user has already updated with the new release, of a repository, 
     # without using this tool)
-    if version[0].lower() == "latest":
+    if version.lower() == "latest":
         version = getLatestVersion(url=url_formatted)[0] # Get the latest version available on GitHub
 
     data["repositories"][url_formatted] = version # Change the version of the repository to the new one
     updateJSON(data=data) # Update the JSON file with the changes made
 
-    print(f"Changed the version of {url} from {old_version} to {version[0]}")
+    print(f"Changed the version of {url} from {old_version} to {version}")
 
 def downloadRelease(url: str):
 
