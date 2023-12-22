@@ -7,7 +7,7 @@ print(
 """
 ╭──────────────────────────── GitHub Checker ────────────────────────────╮
 │                                                                        │
-│   ***  Version: 1.0.10 ***                                             │
+│   ***  Version: 1.0.11 ***                                             │
 │                                                                        │
 │   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***       │
 │                                                                        │

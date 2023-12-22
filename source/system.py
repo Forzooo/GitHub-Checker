@@ -162,7 +162,7 @@ def viewRepository():
     for repository in data["repositories"]:
         print(f"* {formatLinkFromAPI(repository)} - {data["repositories"][repository]}")
 
-    time.sleep(5) # Wait 5 seconds before the loop of the menu starts again
+    time.sleep(2) # Wait 2 seconds before the loop of the menu starts again
 
     return
 

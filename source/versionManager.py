@@ -58,11 +58,12 @@ def checkNewVersions():
         # Verify if the local version of the user is not the latest one available (index 0 of onlineVerision)
         if localVersion != onlineVersion[0]:
             
+            # Check whether the latest release is a prerelease (index 1 of onlineVersion)
             if (onlineVersion[1]):
-                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion[0]}")
+                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion}")
 
             else:
-                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion[0]}")
+                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
 
 
             option = input("- Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
@@ -76,9 +77,13 @@ def checkNewVersions():
             option = input("- Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
 
             if option.lower() == "y":
-                downloadRelease(url=url) # Call the download release function with the url of the repository
+                statusOperation = downloadRelease(url=url) # Call the download release function with the url of the repository, and save the status (it is needed to check whether
+                                                           # an error occurred while trying to download the assets)
+                if statusOperation in [ValueError, IndexError]:
+                    return
 
-                changeVersion(url=userFriendlyUrl, version=onlineVersion) # Call the change version function to update the user version of the repository to the latest one
+
+                changeVersion(url=userFriendlyUrl, version=onlineVersion[0]) # Call the change version function to update the user version of the repository to the latest one
 
             print("\n") # Add a new line to improve the readability between the releases of repositories
 
@@ -125,7 +130,47 @@ def downloadRelease(url: str):
 
     assetsJSON = repository_data[0]["assets"] # Obtain only the assets of the latest release from the JSON file of the releases of the repository
 
-    releasesUrls = [release["browser_download_url"] for release in assetsJSON] # Obtain all the urls of the file in the latest release
+    assetsUrl = [release["browser_download_url"] for release in assetsJSON] # Obtain the url of all the assets in the latest release
+    assetsName = [assetsUrl[i].split("/")[-1] for i in range(len(assetsUrl))] # Retrive the file name from the url of each asset
+
+    # Write the name of all the assets available to download
+    print("- Assets available to download: ")
+    for i in range(len(assetsName)):
+
+        print(f"* {i+1}: {assetsName[i]}")
+
+    option = input("Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
+    
+    # Verify if the user wants to download all the assets
+    if option.lower() != "all":
+    
+        retriveOptions = option.split(" ") # Remove the spaces from each choice
+
+        # Verify whether the user does not want to download an asset
+        if (len(retriveOptions) == 0):
+            return 
+
+        assetsToDownload = [] # Declare the list which will contain all the url of the assets that will be downloaded
+
+        # Assing at each option, of the user, the correspondent asset
+        for option in retriveOptions:
+            try:
+                assetsToDownload.append(assetsUrl[int(option)-1]) # Since in the output, of the assets available to downlaod, every index was incremented by 1 (so the option will be),
+                                                                # now to be used from the list (which goes from 0 to len(list) - 1) it needs to be decremented by 1.
+                                                                # Moreover the option needs to be converted to an integer since the input type is string
+
+            except ValueError: # If the option entered is not a number the following error message will be written and the download will be stopped
+                print(f"You have entered: {option} which is not a number. \nAborting the operation.")
+                return ValueError # ValueError will be returned to prevent the code from changing the version, the user is using, of the repository
+
+            except IndexError: #  If the option is not in the list of the assets available the following error message will be written and the download will be stopped
+                print(f"You have entered: {option} which is not in the list of the assets available to download. \nAborting the operation.")
+                return IndexError # IndexError will be returned to prevent the code from changing the version, the user is using, of the repository
+
+
+    else: # Since the user wants to download every asset, assign to the assetsToDownload list all the url of the assets
+
+        assetsToDownload = assetsUrl
 
     urlFromAPI = formatLinkFromAPI(url) # Convert the url from the APi GitHub url
     url_splitted = urlFromAPI.split("/") # Split the url removing all the slash
@@ -140,8 +185,8 @@ def downloadRelease(url: str):
     except FileExistsError: # If the directory already exist skip the creation of it
         pass
 
-    # Iterate through all the file that can be downloaded from the latest release
-    for url in releasesUrls:
+    # Iterate through all the assets that the user has chosen to download
+    for url in assetsToDownload:
         response = requests.get(url=url, stream=True)  # Make a GET request to the URL and enable streaming
 
         file_name = url.split("/")[-1]  # Retrieve the file name from the URL
@@ -156,4 +201,3 @@ def downloadRelease(url: str):
                         pbar.update(len(chunk))  # Update the progress bar with the chunk size
 
     return
-
