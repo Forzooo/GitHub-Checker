@@ -13,4 +13,7 @@ It is written in Python 3.12 (which is required), and is Open Source under the G
 
 **External Library Required:**
 * `tqdm` used for the download progress bar
-* `pyinstaller` used only if you want to compile the tool
+* `rich` used for the Markdown syntax 
+* `pyinstaller` used only if you want to compile the tool (optional)
+
+You can find the libraries required, with which version I used, in `requirements.txt`

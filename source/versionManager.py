@@ -1,5 +1,9 @@
 from system import readData, updateJSON, formatLinkFromAPI, formatLinktoAPI
 
+# Import the class from the library 'rich' that will be used to print the description of the releases
+from rich.markdown import Markdown
+from rich.console import Console
+
 def obtainVersions(url: str) -> tuple:
 
     import requests # Import the library required to get data from webpages
@@ -71,8 +75,9 @@ def checkNewVersions():
             if option.lower() == "y":
 
                 description = onlineVersion[2] # Obtain the description of the latest release of a repository (index 2 of getLatestVersion function)
-
-                print(f"Description of the release: \n{description}")
+                descriptionMarkdown = Markdown(description) # Convert the description from the MD (Markdown) of GitHub to the one used by the library 'rich'
+                print("Description of the release: \n")
+                Console.print(Console(), descriptionMarkdown) # Write in the terminal the description of the release with the MD syntax
 
             option = input("- Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
 
@@ -144,7 +149,10 @@ def downloadRelease(url: str):
     # Verify if the user wants to download all the assets
     if option.lower() != "all":
     
-        retriveOptions = option.split(" ") # Remove the spaces from each choice
+        retriveOptions = option.split(" ") # Remove a space from each choice
+        retriveOptions = list(filter(lambda x: x != '', retriveOptions)) # If more spaces have been written in the input delete all of them
+
+
 
         # Verify whether the user does not want to download an asset
         if (len(retriveOptions) == 0):
