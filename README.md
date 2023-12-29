@@ -12,8 +12,9 @@ It is written in Python 3.12 (which is required), and is Open Source under the G
 5. Now check the `dist` folder. You will find the .exe in it.
 
 **External Library Required:**
-* `tqdm` used for the download progress bar
-* `rich` used for the Markdown syntax 
+* `rich` used to improve the graphics of the terminal
 * `pyinstaller` used only if you want to compile the tool (optional)
+
+(Note. From version `1.0.13` `tqdm` is no longer required)
 
 You can find the libraries required, with which version I used, in `requirements.txt`

@@ -1,3 +1,7 @@
+# Import the classes from the library 'rich' used to improve the graphics of the terminal
+from rich.console import Console
+from rich.markdown import Markdown
+
 def verifyRepositoryExist(url: str) -> bool:
     import requests # Import the library required to verify if the repository exist
 
@@ -76,7 +80,6 @@ def addLink(url: str, version: str) -> None:
 
     return
 
-
 def createJSON() -> None:
 
     # Create the JSON file used to store the GitHub repositories. If the JSON file already exist, the creation will be skipped
@@ -132,7 +135,6 @@ def removeRepository(url: str):
 
     updateJSON(data=data) # Update the JSON file with the changes made
 
-
 def updateJSON(data):
 
     import json # Import the JSON library to write the new data of the file
@@ -154,13 +156,23 @@ def viewRepository():
 
     import time # Import the time library to allow the user to see the repository before the loop starts again asking for another option
 
+    console = Console()
+
     data = readData() # Obtain the data of the JSON file
 
-    print("The repository you have saved are: \n")
+    print("The repository you have saved, with the version you are using: ")
 
     # Write all the repositories saved with the version the user is using
     for repository in data["repositories"]:
-        print(f"* {formatLinkFromAPI(repository)} - {data["repositories"][repository]}")
+
+        urlUserFriendly =formatLinkFromAPI(repository) # Convert the url from the API one to the github one
+        urlSplitted = urlUserFriendly.split("/") # Split the url
+
+        version = data["repositories"][repository] # Obtain the version of the repository
+
+        text = f"* [{urlSplitted[-2]} - {urlSplitted[-1]}]({urlUserFriendly}): {version}"
+
+        console.print(Markdown(text)) # Convert the text to the Markdown styled one and print it
 
     time.sleep(2) # Wait 2 seconds before the loop of the menu starts again
 

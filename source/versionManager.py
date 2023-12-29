@@ -1,8 +1,9 @@
 from system import readData, updateJSON, formatLinkFromAPI, formatLinktoAPI
 
-# Import the class from the library 'rich' that will be used to print the description of the releases
+# Import the classes from the library 'rich' used to improve the graphics of the terminal
 from rich.markdown import Markdown
 from rich.console import Console
+from rich.progress import Progress
 
 def obtainVersions(url: str) -> tuple:
 
@@ -46,6 +47,8 @@ def checkNewVersions():
 
     import time # Import the time library to allow the user to see the repositories before the loop starts again asking for another option
 
+    console = Console() # Initialize the Console class
+
     data = readData() # Read the data from "sites.json"
     repositories = data["repositories"] # Obtain the data of the repositories
 
@@ -64,13 +67,13 @@ def checkNewVersions():
             
             # Check whether the latest release is a prerelease (index 1 of onlineVersion)
             if (onlineVersion[1]):
-                print(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+                console.print(Markdown(f"* A new release, version: {onlineVersion[0]} (prerelease) for {userFriendlyUrl} is now available. You are using version: {localVersion}"))
 
             else:
-                print(f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion}")
+                console.print(Markdown((f"* A new release, version: {onlineVersion[0]} for {userFriendlyUrl} is now available. You are using version: {localVersion}")))
 
 
-            option = input("- Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
+            option = input("    - Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
 
             if option.lower() == "y":
 
@@ -79,7 +82,7 @@ def checkNewVersions():
                 print("Description of the release: \n")
                 Console.print(Console(), descriptionMarkdown) # Write in the terminal the description of the release with the MD syntax
 
-            option = input("- Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
+            option = input("    - Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
 
             if option.lower() == "y":
                 statusOperation = downloadRelease(url=url) # Call the download release function with the url of the repository, and save the status (it is needed to check whether
@@ -129,7 +132,7 @@ def downloadRelease(url: str):
 
     import requests # Import the library required to get data from webpages
     import os # Import the library used to create the directory of the release
-    from tqdm import tqdm # Import the library used to create the progress bar of the download
+    import time # Import the time required to calculate the download speed
 
     repository_data = (requests.get(url)).json() # Obtain the data from the api of the repository given in input
 
@@ -139,12 +142,12 @@ def downloadRelease(url: str):
     assetsName = [assetsUrl[i].split("/")[-1] for i in range(len(assetsUrl))] # Retrive the file name from the url of each asset
 
     # Write the name of all the assets available to download
-    print("- Assets available to download: ")
-    for i in range(len(assetsName)):
+    print("         - Assets available to download: ")
+    for i, assetName in enumerate(assetsName):
 
-        print(f"* {i+1}: {assetsName[i]}")
+        print(f"            {i+1}. {assetName}")
 
-    option = input("Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
+    option = input("         - Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
     
     # Verify if the user wants to download all the assets
     if option.lower() != "all":
@@ -200,12 +203,27 @@ def downloadRelease(url: str):
         file_name = url.split("/")[-1]  # Retrieve the file name from the URL
         total_size = int(response.headers.get('content-length', 0))  # Get the total size of the file
 
-        # Create a progress bar
-        with tqdm(total=total_size, unit='B', unit_scale=True, desc=file_name, ascii=True) as pbar:
-            with open(f"{nameOfTheDirectory}/{file_name}", "wb") as file:  # Open a file in write binary mode
-                for chunk in response.iter_content(chunk_size=1024):  # Iterate over the streamed content in chunks
+        # Create a progress bar using the 'rich' library
+        with Progress() as progress:
+            task = progress.add_task("[cyan]Downloading...", total=total_size)
+            start_time = time.time()
+            downloaded = 0
+            with open(f"{nameOfTheDirectory}/{file_name}", "wb") as file:  # Create the file, that will be downloaded, and open it in write binary mode
+                for chunk in response.iter_content(chunk_size=1024):
                     if chunk:
-                        file.write(chunk)  # Write the chunk to the file
-                        pbar.update(len(chunk))  # Update the progress bar with the chunk size
+                        file.write(chunk) # Write the chunk downloaded to the file
+                        downloaded += len(chunk) # Added the chunk to the downloaded size
+                        elapsed_time = time.time() - start_time # Calculate the time it took to download the chunk
+
+                        # Verify that the time elapsed is greater than 0, otherwise it would result in a divsion by 0
+                        if elapsed_time > 0:
+                            
+                            download_speed = downloaded / elapsed_time # Calculate the current download speed
+
+                        else:
+                            download_speed = 0 # Set the download speed to 0
+
+                        progress.update(task, advance=len(chunk), description=f"[yellow]{file_name}[/yellow] [{downloaded / 1024 / 1024:.2f}MB/{total_size / 1024 / 1024:.2f}MB] Speed: {download_speed / 1024 / 1024:.2f}MB/s ")
+                        # Update the progress bar with the current data
 
     return

@@ -3,18 +3,30 @@ from versionManager import checkNewVersions, changeVersion
 
 createJSON()
 
-print(
+# Import the classes from 'rich' library
+from rich.console import Console
+from rich.panel import Panel
+from rich.markdown import Markdown
+
+console = Console() # Create the console
+
+text = """
+*  Version: 1.0.13
+
+* Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
+
+*  Made by: Forzo
 """
-╭──────────────────────────── GitHub Checker ────────────────────────────╮
-│                                                                        │
-│   ***  Version: 1.0.12 ***                                             │
-│                                                                        │
-│   *** Source Code: https://github.com/Forzooo/GitHub-Checker ***       │
-│                                                                        │
-│   ***  Made by: Forzo  ***                                             │
-╰────────────────────────────────────────────────────────────────────────╯
-"""
-)
+
+text = Markdown(text) # Convert the text to print it with the Markdown style
+
+# Create a styled panel
+panel = Panel(text, title="GitHub Checker", border_style="blue", )
+
+# Print the styled panel
+console.print(panel)
+
+
 
 options = [
     "Exit from the tool",
@@ -27,12 +39,12 @@ options = [
 ]
 while True:
 
-    print("\nFunctions available: ")
+    console.print("\n[b]Functions available:[/b]\n")
 
-    for i in range(len(options)):
-        print(f"({i}) {options[i]}")
+    for i, option in enumerate(options):
+        console.print(f"[cyan]({i})[/cyan] {option}")
 
-    option = input("\n\nOption: ")
+    option = console.input("\n[b]Option:[/b] ")
 
 
     if option == "0":
