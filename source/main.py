@@ -1,7 +1,7 @@
 from system import addLink, createJSON, removeRepository, viewRepository, openDownloadFolder
-from versionManager import checkNewVersions, changeVersion
+from versionManager import checkNewVersions, changeVersion, checkRepositories
 
-createJSON()
+createJSON() # Create "sites.json" (it happens only if it does not exist already)
 
 # Import the classes from 'rich' library
 from rich.console import Console
@@ -11,7 +11,7 @@ from rich.markdown import Markdown
 console = Console() # Create the console
 
 text = """
-*  Version: 1.0.13
+*  Version: 1.0.14
 
 * Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
 
@@ -27,18 +27,20 @@ panel = Panel(text, title="GitHub Checker", border_style="blue", )
 console.print(panel)
 
 
-
+# Define all the options available to the user
 options = [
     "Exit from the tool",
     "Add a repository",
     "Remove a repository",
     "View all the repositories",
+    "Check the status of the repositories",
     "Verify new releases",
     "Change the version you are using of a repository",
     "Open the download folder",
 ]
 while True:
 
+    # Print all the options
     console.print("\n[b]Functions available:[/b]\n")
 
     for i, option in enumerate(options):
@@ -47,6 +49,7 @@ while True:
     option = console.input("\n[b]Option:[/b] ")
 
 
+    # Check which option the user has chosen
     if option == "0":
         break
 
@@ -65,14 +68,17 @@ while True:
         viewRepository()
 
     elif option == "4":
-        checkNewVersions()
+        checkRepositories()
 
     elif option == "5":
+        checkNewVersions()
+
+    elif option == "6":
         url = input("Url of the repository: ")
         version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
 
         changeVersion(url=url, version=version)
 
-    elif option == "6":
+    elif option == "7":
         openDownloadFolder()
 

@@ -6,15 +6,13 @@ def verifyRepositoryExist(url: str) -> bool:
     import requests # Import the library required to verify if the repository exist
 
     try:
-
         response = requests.get(url)
 
-    except requests.exceptions.MissingSchema:
+    except requests.exceptions.MissingSchema: # Check if the url does not have http or https
         print(f"You have entered an invalid url: {url}")
         return False
 
-    if response.status_code != 200:
-        print("The repository does not exist.")
+    if response.status_code != 200: # If the status code is not 200 then it means the repository does not exist
         return False
 
     return True
@@ -61,7 +59,8 @@ def addLink(url: str, version: str) -> None:
 
     from versionManager import getLatestVersion
 
-    if not verifyRepositoryExist(url):
+    if not verifyRepositoryExist(url): # Check if the repository given in input exist
+        print(f"- The repository {url} does not exist.")
         return
 
     url_formatted = formatLinktoAPI(url=url) # Convert the url to the one used from the tool: "https://api.github.com. ..."
@@ -76,7 +75,7 @@ def addLink(url: str, version: str) -> None:
 
     updateJSON(data=data) # Update the JSON file with the changes made
 
-    print(f"Added the repository: {url_formatted}")
+    print(f"- Added the repository: {url_formatted}")
 
     return
 
@@ -165,7 +164,7 @@ def viewRepository():
     # Write all the repositories saved with the version the user is using
     for repository in data["repositories"]:
 
-        urlUserFriendly =formatLinkFromAPI(repository) # Convert the url from the API one to the github one
+        urlUserFriendly = formatLinkFromAPI(repository) # Convert the url from the API one to the github one
         urlSplitted = urlUserFriendly.split("/") # Split the url
 
         version = data["repositories"][repository] # Obtain the version of the repository
@@ -177,7 +176,6 @@ def viewRepository():
     time.sleep(2) # Wait 2 seconds before the loop of the menu starts again
 
     return
-
 
 def openDownloadFolder():
 

@@ -1,4 +1,4 @@
-from system import readData, updateJSON, formatLinkFromAPI, formatLinktoAPI
+from system import readData, updateJSON, formatLinkFromAPI, formatLinktoAPI, verifyRepositoryExist, removeRepository
 
 # Import the classes from the library 'rich' used to improve the graphics of the terminal
 from rich.markdown import Markdown
@@ -17,7 +17,7 @@ def obtainVersions(url: str) -> tuple:
     except TypeError as e:
         try:
             print(f"- Error: {repository_data['message']}")
-    
+            
         except KeyError:
             print(f"- Error: {e} occured. Write an issue on GitHub to have it solved.")
             
@@ -41,7 +41,6 @@ def getLatestVersion(url: str) -> tuple:
     description = tagVersions[2][0] # Obtain the description of the latest release of the repository
 
     return (version, prelease, description)
-
 
 def checkNewVersions():
 
@@ -79,7 +78,6 @@ def checkNewVersions():
 
                 description = onlineVersion[2] # Obtain the description of the latest release of a repository (index 2 of getLatestVersion function)
                 descriptionMarkdown = Markdown(description) # Convert the description from the MD (Markdown) of GitHub to the one used by the library 'rich'
-                print("Description of the release: \n")
                 Console.print(Console(), descriptionMarkdown) # Write in the terminal the description of the release with the MD syntax
 
             option = input("    - Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
@@ -227,3 +225,19 @@ def downloadRelease(url: str):
                         # Update the progress bar with the current data
 
     return
+
+def checkRepositories():
+
+    data = readData() # Obtain all the urls of the repositories
+
+    repositories = data["repositories"] # Obtain the data of the repositories
+
+    for repository in repositories: # Iterate over the repositories link
+
+        repository = formatLinkFromAPI(repository) # Format the link here to avoid calling multiple times formatLinkFromAPI
+
+        if not verifyRepositoryExist(repository): # If the repositories does not exist then remove it from "sites.json" | formatLinkFromAPI nees to be called
+                                                                     # because verifyRepositoryExist wants the normal url of GitHub  
+
+            print(f"- The repository {repository} does not exist anymore. Removing it...")
+            removeRepository(repository)
