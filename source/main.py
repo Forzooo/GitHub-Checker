@@ -1,31 +1,25 @@
-from system import addLink, createJSON, removeRepository, viewRepository, openDownloadFolder
-from versionManager import checkNewVersions, changeVersion, checkRepositories
-
-createJSON() # Create "sites.json" (it happens only if it does not exist already)
+from system import System
+from versionManager import VersionManager
 
 # Import the classes from 'rich' library
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-console = Console() # Create the console
+import time # Required to let the menu be more readable
 
-text = """
-*  Version: 1.0.14
+initial_prompt = """
+*  Version: 1.1.0
 
 * Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
 
 *  Made by: Forzo
 """
 
-text = Markdown(text) # Convert the text to print it with the Markdown style
+text = Markdown(initial_prompt) # Convert the text to print it with the Markdown style
 
 # Create a styled panel
 panel = Panel(text, title="GitHub Checker", border_style="blue", )
-
-# Print the styled panel
-console.print(panel)
-
 
 # Define all the options available to the user
 options = [
@@ -38,47 +32,67 @@ options = [
     "Change the version you are using of a repository",
     "Open the download folder",
 ]
-while True:
 
-    # Print all the options
-    console.print("\n[b]Functions available:[/b]\n")
+if __name__ == "__main__":    
 
-    for i, option in enumerate(options):
-        console.print(f"[cyan]({i})[/cyan] {option}")
+    versionManager = VersionManager()
 
-    option = console.input("\n[b]Option:[/b] ")
+    console = Console() # Create the console
+    # Print the initial prompt panel
+    console.print(panel)
 
+    while True:
 
-    # Check which option the user has chosen
-    if option == "0":
-        break
+        console.print("\n[b]Functions available:[/b]\n")
 
-    elif option == "1":
-        url = input("Enter a GitHub repository link: ")
-        version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
+        # Print all the options available
+        for i, option in enumerate(options):
+            console.print(f"[cyan]({i})[/cyan] {option}")
 
-        addLink(url=url, version=version)
+        option = console.input("\n[b]Option:[/b] ")
 
-    elif option == "2":
+        # Check which option the user has chosen
+        match option:
 
-        url = input("Url of the repository: ")
-        removeRepository(url=url)
+            case "0":
+                break
 
-    elif option == "3":
-        viewRepository()
+            case "1":
+                url = input("Enter a GitHub repository link: ")
+                version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
 
-    elif option == "4":
-        checkRepositories()
+                versionManager.setUrl(url)
+                versionManager.addRepository(version=version)
 
-    elif option == "5":
-        checkNewVersions()
+            case "2":
 
-    elif option == "6":
-        url = input("Url of the repository: ")
-        version = input("Version you are using (type 'latest' (without quotes) to set to the last one available): ")
+                url = input("Url of the repository: ")
+                versionManager.setUrl(url)
+                versionManager.removeRepository()
 
-        changeVersion(url=url, version=version)
+            case "3":
+                versionManager.viewRepositories()
 
-    elif option == "7":
-        openDownloadFolder()
+            case "4":
+                check_repository_flag = versionManager.checkRepositories()
 
+                if check_repository_flag:
+                    print("All the repositories you have saved exists.")
+
+            case "5":
+                versionManager.checkNewVersions()
+
+            case "6":
+                url = input("Url of the repository: ")
+                version = input("Version you are using (type 'latest', without quotes, to set it to the last one available): ")
+                versionManager.setUrl(url)
+
+                versionManager.changeVersion(version=version)
+
+            case "7":
+                System.openDownloadFolder(System)
+
+            case _:
+                pass
+
+        time.sleep(2) # Wait 2 seconds before the loop of the menu starts again
