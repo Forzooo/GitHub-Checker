@@ -52,23 +52,22 @@ class VersionManager:
 
     def changeVersion(self, version: str):
 
-        api_url = self.system.formatUrlToAPI() # Format the url of the repository to the GitHub API one
-
         try:
-            old_version = self.system.data["repositories"][api_url] # Obtain the previous version the user was using of the repository
+            old_version = self.system.data["repositories"][self.url] # Obtain the previous version the user was using of the repository
 
         except KeyError:
-            return # The error is already written in the formatLinkToApi function
+            print("- You have entered an url which is not in the JSON file.")
+            return 
 
         # If the user is using the latest relase than update it to the last one available (This is used if the user has already updated with the new release, of a repository, 
         # without using this tool)
         if version.lower() == "latest":
             version = self.getLatestVersion()[0] # Get the latest version available on GitHub
 
-        self.system.data["repositories"][api_url] = version # Change the version of the repository to the new one
+        self.system.data["repositories"][self.url] = version # Change the version of the repository to the new one
         self.system.updateJSON() # Update the JSON file with the changes made
 
-        print(f"Changed the version of {self.url} from {old_version} to {version}")
+        print(f"- Changed the version of {self.url} from {old_version} to {version}")
 
     def removeRepository(self):
 
@@ -76,7 +75,7 @@ class VersionManager:
             del self.system.data["repositories"][self.url] # Delete the url from the data
 
         except KeyError:
-            print("You have entered an url which is not in the JSON file.")
+            print("- You have entered an url which is not in the JSON file.")
             return
 
         self.system.updateJSON() # Update the JSON file with the changes made
@@ -87,7 +86,7 @@ class VersionManager:
 
         console = Console()
 
-        print("The repositories you have saved, with the version you are using: ")
+        print("- The repositories you have saved, with the version you are using: ")
 
         # Write all the repositories saved with the version the user is using
         for repository in self.system.data["repositories"]:
@@ -175,7 +174,7 @@ class VersionManager:
                     console.print(Markdown((f"* A new release, version: {onlineVersion[0]} for {url} is now available. You are using version: {localVersion}")))
 
 
-                option = input("    - Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
+                option = input("- Do you want to see the description of the release? (y/N) ") # Ask the user whether he wants to see the description of the release
 
                 if option.lower() == "y":
 
@@ -183,14 +182,15 @@ class VersionManager:
                     descriptionMarkdown = Markdown(description) # Convert the description from the MD (Markdown) of GitHub to the one used by the library 'rich'
                     Console.print(Console(), descriptionMarkdown) # Write in the terminal the description of the release with the MD syntax
 
-                option = input("    - Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
+                option = input("- Do you want to download it? (y/N) ") # Ask the user whether he wants to download the latest release available
 
                 if option.lower() == "y":
-                    statusOperation = self.downloadRelease() # Call the download release function with the url of the repository, and save the status (it is needed to check whether
-                                                            # an error occurred while trying to download the assets)
-                    if statusOperation in [ValueError, IndexError]:
+                    downloadResponse = self.downloadRelease() # Call the download release function with the url of the repository, and save the respose: it is needed to check whether
+                                                            # an error occurred while trying to download the assets, or otherwise to tell the user where the files are
+                    if downloadResponse in [ValueError, IndexError]:
                         return
 
+                    print(f"- You can find the files you have downloaded in {downloadResponse} folder, which has been created inside the folder of the tool.")
 
                     self.changeVersion(version=onlineVersion[0]) # Call the change version function to update the user version of the repository to the latest one
 
@@ -204,9 +204,11 @@ class VersionManager:
 
         return
 
-    def downloadRelease(self):
+    def downloadRelease(self) -> type[ValueError] | type[IndexError] | str:
 
         repository_data = (requests.get(self.system.formatUrlToAPI())).json() # Obtain the data from the api of the repository given in input
+
+        version_release = [release["tag_name"] for release in repository_data][0] # Obtain the version of the latest release
 
         assetsJSON = repository_data[0]["assets"] # Obtain only the assets of the latest release from the JSON file of the releases of the repository
 
@@ -214,12 +216,12 @@ class VersionManager:
         assetsName = [assetsUrl[i].split("/")[-1] for i in range(len(assetsUrl))] # Retrive the file name from the url of each asset
 
         # Write the name of all the assets available to download
-        print("         - Assets available to download: ")
+        print("- Assets available to download: ")
         for i, assetName in enumerate(assetsName):
 
             print(f"            {i+1}. {assetName}")
 
-        option = input("         - Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
+        option = input("- Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
         
         # Verify if the user wants to download all the assets
         if option.lower() != "all":
@@ -255,8 +257,8 @@ class VersionManager:
 
         url_splitted = self.url.split("/") # Split the url removing all the slashes
 
-        nameOfTheDirectory = f"{url_splitted[3]}-{url_splitted[4]}" # Create the name of the directory by url_splitted[3] the name of the owner of the repository
-                                                                    # and url_splitted[4] the name of the repository
+        nameOfTheDirectory = f"{url_splitted[3]}-{url_splitted[4]}-{version_release}" # Create the name of the directory by url_splitted[3] the name of the owner of the repository
+                                                                    # and url_splitted[4] the name of the repository. Moreover include the verion of the release
 
         try:
             os.mkdir(nameOfTheDirectory) # Create a directory for the content downloaded of the repository
@@ -292,3 +294,5 @@ class VersionManager:
 
                             progress.update(task, advance=len(chunk), description=f"[yellow]{file_name}[/yellow] [{downloaded / 1024 / 1024:.2f}MB/{total_size / 1024 / 1024:.2f}MB] Speed: {download_speed / 1024 / 1024:.2f}MB/s ")
                             # Update the progress bar with the current data
+
+        return nameOfTheDirectory # Return the name of the directory for the print statement in 'checkNewVersions'

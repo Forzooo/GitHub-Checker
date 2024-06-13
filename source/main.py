@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 import time # Required to let the menu be more readable
 
 initial_prompt = """
-*  Version: 1.1.1
+*  Version: 1.1.2
 
 * Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                 check_repository_flag = versionManager.checkRepositories()
 
                 if check_repository_flag:
-                    print("All the repositories you have saved exists.")
+                    print("- All the repositories you have saved exists.")
 
             case "5":
                 versionManager.checkNewVersions()

@@ -61,12 +61,12 @@ class System:
 
         # Verify that the url is a GitHub url
         if url_splitted[2] != "github.com":
-            print(f"The url given in input is: {url_splitted[2]} which is not github.com")
+            print(f"- The url given in input is: {url_splitted[2]} which is not github.com")
             return
 
         # Verify that the url of the repository is the one required in the README.md file
         if len(url_splitted) != 5:
-            print("The url of the repository is not the in the format required by the script: \"https://github.com/username/repository_name \"")
+            print("- The url of the repository is not the in the format required by the script: \"https://github.com/username/repository_name \"")
             return
 
         # Strings used to modify the url given in input by the user
