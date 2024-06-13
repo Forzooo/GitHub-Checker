@@ -58,7 +58,6 @@ class System:
         
         # Remove all the slash from the url
         url_splitted = self.url.split("/")
-        print(url_splitted)
 
         # Verify that the url is a GitHub url
         if url_splitted[2] != "github.com":

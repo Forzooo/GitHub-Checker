@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 import time # Required to let the menu be more readable
 
 initial_prompt = """
-*  Version: 1.1.0
+*  Version: 1.1.1
 
 * Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
 
