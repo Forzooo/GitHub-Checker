@@ -219,7 +219,7 @@ class VersionManager:
         print("- Assets available to download: ")
         for i, assetName in enumerate(assetsName):
 
-            print(f"            {i+1}. {assetName}")
+            print(f" * {i+1}. {assetName}")
 
         option = input("- Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
         
