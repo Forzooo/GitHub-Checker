@@ -102,20 +102,29 @@ class VersionManager:
         flag = True # The flag is set to be True and it won't be changed unless one or more repositories don't exist anymore
         repositories = self.system.data["repositories"] # Obtain the data of the repositories
 
-        for repository in repositories: # Iterate over the repositories link
+        repositories_dead = [] # To avoid RuntimeError if more than one repository does not exist anymore keep in a list all the repositories
+                               # and delete them after for loop
 
+        # Look for repository that don't exist anymore and save them in the list
+        for repository in repositories: # Iterate over the repositories link
             self.setUrl(repository) # It's required to set the url because otherwise the function 'verifyRepositoryExist'
                                     # would likely use another url all the time
-
             if not self.verifyRepositoryExist(): # If the repositories does not exist then remove it from "sites.json"
+                repositories_dead.append(repository) # Add the dead repository to the list
+                flag = False # One or more repositories don't exist anymore thus the flag is set to be false
 
-                print(f"- The repository {repository} does not exist anymore. Removing it...")
-                flag = False
-                self.removeRepository()
+        # Remove the repositories that don't exist anymore
+        for repository in repositories_dead:
+            self.setUrl(repository)
+
+            print(f"- The repository {repository} does not exist anymore:")
+            self.removeRepository()
         
+            print("") # Improve the readability of the console 
+
         return flag
 
-    def obtainVersions(self) -> tuple:
+    def obtainVersions(self) -> tuple | None:
         
         repository_data = (requests.get(self.system.formatUrlToAPI())).json() # Obtain the data from the API of the repository given in input
 
@@ -123,29 +132,31 @@ class VersionManager:
             tag_names = [release["tag_name"] for release in repository_data] # Obtain all the tag names of the releases
         
         except TypeError as e:
-            try:
-                print(f"- Error: {repository_data['message']}")
-                
-            except KeyError:
-                print(f"- Error: {e} occured. Write an issue on GitHub to have it solved.")
-                
-            input("\nPress enter to exit...")
-            quit()
+            
+            # If a repository if found to not be existing anymore check if there are other that don't exist too
+            if repository_data['status'] == '404':
+                self.checkRepositories()
+                return None # None is used to tell checkNewVersions to end its execution. Otherwise RuntimeError would occur
+
 
         pre_release = [release["prerelease"] for release in repository_data] # Obtain all the boolean of the prereleases
         description = [release["body"] for release in repository_data] # Retrive all the "body" tags from all the releases in the json. Where "body" is the description of the release
 
         return (tag_names, pre_release, description) # Return every release, if it's a prerelease and its description
 
-    def getLatestVersion(self) -> tuple:
+    def getLatestVersion(self) -> tuple | None:
 
         tagVersions = self.obtainVersions() # Obtain all the tag versions of the releases of the repository
 
+        # This happens only if the repository don't exist anymore and it's required to return None to stop the execution of checkNewVersions
+        if tagVersions == None:
+            return None
+
         version = tagVersions[0][0] # Obtain the latest release of the repository
-        prelease = tagVersions[1][0] # Obtain the flag whether the latest release of the repository is a prerelease
+        prelease_flag = tagVersions[1][0] # Obtain the flag whether the latest release of the repository is a prerelease
         description = tagVersions[2][0] # Obtain the description of the latest release of the repository
 
-        return (version, prelease, description)
+        return (version, prelease_flag, description)
 
     def checkNewVersions(self):
 
@@ -161,7 +172,12 @@ class VersionManager:
             self.setUrl(url) # It's required to set the URL in this way otherwise the functions will probably use all the time the URL of another repository
 
             localVersion = repositories[url] # Obtain the local version (the one used by the user) of the repository
+            
             onlineVersion = self.getLatestVersion() # Obtain the latest version and the flag whether it's a prelease, of the repository
+
+            if onlineVersion == None: # The function stops if one or more repositories are found to be dead, to avoid RuntimeError
+                print("- Since you had some repositories that don't exist anymore, you need to recall the function.")
+                return
 
             # Verify if the local version of the user is not the latest one available (index 0 of onlineVerision)
             if localVersion != onlineVersion[0]:
@@ -187,7 +203,8 @@ class VersionManager:
                 if option.lower() == "y":
                     downloadResponse = self.downloadRelease() # Call the download release function with the url of the repository, and save the respose: it is needed to check whether
                                                             # an error occurred while trying to download the assets, or otherwise to tell the user where the files are
-                    if downloadResponse in [ValueError, IndexError]:
+                    if downloadResponse in [ValueError, IndexError, None]: # If the user aborted the download or created an error then there is no reason 
+                                                                           # to execute the following lines
                         return
 
                     print(f"- You can find the files you have downloaded in {downloadResponse} folder, which has been created inside the folder of the tool.")
@@ -204,7 +221,7 @@ class VersionManager:
 
         return
 
-    def downloadRelease(self) -> type[ValueError] | type[IndexError] | str:
+    def downloadRelease(self) -> type[ValueError] | type[IndexError] | str | None:
 
         repository_data = (requests.get(self.system.formatUrlToAPI())).json() # Obtain the data from the api of the repository given in input
 
@@ -219,7 +236,7 @@ class VersionManager:
         print("- Assets available to download: ")
         for i, assetName in enumerate(assetsName):
 
-            print(f" * {i+1}. {assetName}")
+            print(f"  {i+1}. {assetName}")
 
         option = input("- Write the number of the assets you want to download (ex. 1 3) (Write 'all' without quotes to download them all): ") # Get in input which asset the user wants to download | He will write it in numbers
         
@@ -231,7 +248,7 @@ class VersionManager:
 
             # Verify whether the user does not want to download an asset
             if (len(retriveOptions) == 0):
-                return 
+                return None
 
             assetsToDownload = [] # Declare the list which will contain all the url of the assets that will be downloaded
 

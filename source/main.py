@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 import time # Required to let the menu be more readable
 
 initial_prompt = """
-*  Version: 1.1.3
+*  Version: 1.1.4
 
 * Source Code: [https://github.com/Forzooo/GitHub-Checker](https://github.com/Forzooo/GitHub-Checker)
 
@@ -38,8 +38,7 @@ if __name__ == "__main__":
     versionManager = VersionManager()
 
     console = Console() # Create the console
-    # Print the initial prompt panel
-    console.print(panel)
+    console.print(panel) # Print the initial prompt panel
 
     while True:
 

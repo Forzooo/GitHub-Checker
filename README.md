@@ -2,7 +2,7 @@
 **About the tool.** This tool aims to automate the process of checking and downloading new versions available of one or more repositories on GitHub.
 It is written in Python 3.12 (which is required), and is Open Source under the GPL-3.0 license.
 
-**About new releases.** The development phase of this tool has ended with `v1.0.11`. From now if new releases will be published they will only contain bug fixes or minor improvements.
+**About new releases.** The development phase of this tool has ended with `v1.0.11`. From now if new releases will be published, they will only contain bug fixes or minor improvements.
 
 **Compile the tool.**
 1. Download the source code of the repository
